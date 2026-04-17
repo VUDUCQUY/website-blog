@@ -1,4 +1,4 @@
-import { getEnv } from "@/utils/get-env";
+import { getEnv } from "@/common/utils/get-env";
 
 export const Env = {
    NODE_ENV: getEnv('NODE_ENV', 'development'),

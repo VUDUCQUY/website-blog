@@ -1,5 +1,5 @@
 import { HTTPSTATUS } from "@/config/http.config";
-import { AppError, ErrorCodes } from "@/utils/app-error";
+import { AppError, ErrorCodes } from "@/common/utils/app-error";
 import { ErrorRequestHandler } from "express"
 
 

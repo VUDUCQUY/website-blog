@@ -1,4 +1,4 @@
-import { UnauthorizedException } from "@/utils/app-error";
+import { UnauthorizedException } from "@/common/utils/app-error";
 import passport from "passport";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import { Env } from "./env.config";

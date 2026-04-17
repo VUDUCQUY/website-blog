@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { Env } from "../config/env.config";
+import { Env } from "../../config/env.config";
 import { Response } from "express";
 
 type Time = `${number}${"s" | "m" | "h" | "d" | "w" | "y"}`;

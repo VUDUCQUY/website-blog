@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import routes from './routes';
-import { errorHandler } from './middleware/error-handler.middleware';
+import { errorHandler } from './common/middleware/error-handler.middleware';
 import { Env } from './config/env.config';
 import cookieParser from 'cookie-parser';
 
