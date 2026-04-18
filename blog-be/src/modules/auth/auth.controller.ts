@@ -2,50 +2,60 @@ import { HTTPSTATUS } from "@/config/http.config";
 import { clearJwtAuthCookie, setJwtAuthCookie } from "@/common/utils/cookie";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
-import { SignUpDto } from "../dto/signup.dto";
-import { SignInDto } from "../dto/signin.dto";
+import { SignUpDto } from "./dto/signup.dto";
+import { SignInDto } from "./dto/signin.dto";
+import { Logger } from "winston";
 
 export class AuthController {
    constructor(
       private readonly authService: AuthService,
-   ) {}
+      private readonly logger: Logger,
+   ) { }
 
    async register(req: Request, res: Response) {
-    const dto = req.body as SignUpDto;
+      const dto = req.body as SignUpDto;
+      this.logger.info("Starting to register user in controller");
       const user = await this.authService.register(dto);
       const userId = user.id.toString();
 
-      return setJwtAuthCookie({
+      const accessToken = setJwtAuthCookie({
          res,
          userId,
-      })
-         .status(HTTPSTATUS.CREATED)
+      });
+      this.logger.info("User registered successfully");
+      return res.status(HTTPSTATUS.CREATED)
          .json({
             message: "User registered successfully",
-            user
+            accessToken,
+            user,
          });
    };
 
    async login(req: Request, res: Response) {
-    const dto = req.body as SignInDto;
+      this.logger.info("Starting to login user in controller");
+      const dto = req.body as SignInDto;
       const user = await this.authService.login(dto);
       const userId = user.id.toString();
-      return setJwtAuthCookie({
+      const accessToken = setJwtAuthCookie({
          res,
          userId
-      })
-         .status(HTTPSTATUS.OK)
+      });
+      this.logger.info("User logged in successfully");
+      return res.status(HTTPSTATUS.OK)
          .json({
             message: "User logged in successfully",
-            user
+            accessToken,
+            user,
          });
    }
    async logout(req: Request, res: Response) {
+      this.logger.info("Starting to logout user in controller");
       return clearJwtAuthCookie(res).status(HTTPSTATUS.OK).json({
          message: "User logged out successfully"
       });
    }
    async authStatus(req: Request, res: Response) {
+      this.logger.info("Starting to check auth status in controller");
       const user = req.user;
       return res.status(HTTPSTATUS.OK).json({
          message: "User authenticated successfully",

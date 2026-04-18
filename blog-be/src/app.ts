@@ -10,14 +10,6 @@ const app = express();
 
 const PORT = Env.PORT || 5000;
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.originalUrl}`, {
-    query: req.query,
-    body: req.body,
-    params: req.params,
-  });
-  next();
-});
 
 app.use(express.json({ limit: "10mb" }));
 
