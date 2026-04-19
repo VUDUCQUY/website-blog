@@ -20,6 +20,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -29,8 +30,7 @@
     "multer": "^2.1.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "winston": "^3.19.0",
-    "zod": "^3.25.76"
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

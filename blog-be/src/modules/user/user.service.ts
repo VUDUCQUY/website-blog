@@ -2,10 +2,11 @@ import { Logger } from "winston";
 import bcrypt from "bcrypt";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { BadRequestException, NotFoundException, UnauthorizedException } from "@/common/utils/app-error";
+import { BadRequestException, InternalServerException, NotFoundException, UnauthorizedException } from "@/common/utils/app-error";
 import { IUserRepository, UpdateProfileData } from "./user.repository";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { deleteAvatarFromCloudinary, uploadAvatarToCloudinary } from "@/common/utils/cloudinary";
 
 
 export class UserService {
@@ -61,18 +62,38 @@ export class UserService {
       });
    }
 
-   async updateAvatar(userId: string | undefined, fileName?: string) {
+   async updateAvatar(userId: string | undefined, localFilePath?: string) {
 
       if (!userId) {
          throw new BadRequestException("Missing authenticated user");
       }
 
-      if (!fileName) {
+      if (!localFilePath) {
          throw new BadRequestException("Avatar file is required");
       }
 
-      const avatarUrl = `/uploads/avatars/${fileName}`;
-      return this.userRepository.updateAvatar(userId, avatarUrl);
+      let uploadedAvatar;
+
+      try {
+         uploadedAvatar = await uploadAvatarToCloudinary(localFilePath);
+      } catch (error) {
+        
+         throw new InternalServerException("Failed to upload avatar");
+      }
+
+      try {
+         return await this.userRepository.updateAvatar(userId, uploadedAvatar.secureUrl);
+      } catch (error) {
+         await deleteAvatarFromCloudinary(uploadedAvatar.publicId).catch((rollbackError) => {
+            this.logger.warn("Failed to rollback avatar on Cloudinary", {
+               userId,
+               publicId: uploadedAvatar.publicId,
+               rollbackError,
+            });
+         });
+
+         throw error;
+      }
    }
 
 
@@ -111,12 +132,19 @@ export class UserService {
          throw new BadRequestException("New password must be different from current password");
       }
 
-      const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
-
-      await this.userRepository.changePassword(userId, hashedPassword);
+      try {
+         const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+         await this.userRepository.changePassword(userId, hashedPassword);
+      } catch (error) {
+         throw new InternalServerException("Failed to change password");
+      }
    }
 
    async updateStatus(userId: string, currentUserId: string | undefined) {
+      if (!currentUserId) {
+         throw new BadRequestException("Missing authenticated user");
+      }
+
       const user = await this.userRepository.findUserByIdForAdmin(userId);
 
       if (!user) {
@@ -125,7 +153,12 @@ export class UserService {
 
       const newStatus = !user.isActive;
 
-      await this.userRepository.updateStatus(userId, currentUserId, newStatus);
+      try {
+         await this.userRepository.updateStatus(userId, currentUserId, newStatus);
+      } catch (error) {
+         
+         throw new InternalServerException("Failed to update user status");
+      }
    }
 
 }

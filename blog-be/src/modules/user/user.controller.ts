@@ -41,7 +41,7 @@ export class UserController {
 
    async uploadAvatar(req: Request, res: Response) {
       const userId = req.user?.id;
-      const profile = await this.userService.updateAvatar(userId, req.file?.filename);
+      const profile = await this.userService.updateAvatar(userId, req.file?.path);
 
       return res.status(HTTPSTATUS.OK).json({
          message: "Upload avatar successfully",
@@ -67,7 +67,7 @@ export class UserController {
    async updateStatus(req: Request, res: Response) {
       const { userId } = req.params as { userId: string };
       const currentUserId = req.user?.id;
-      
+
       await this.userService.updateStatus(userId, currentUserId);
 
       return res.status(HTTPSTATUS.OK).json({

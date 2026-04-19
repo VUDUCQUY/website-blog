@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { UnauthorizedException } from '@/common/utils/app-error';
+import { InternalServerException, UnauthorizedException } from '@/common/utils/app-error';
 import { IAuthRepository } from './auth.repository';
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
@@ -23,27 +23,37 @@ export class AuthService {
          throw new UnauthorizedException("User with this email already exists");
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      try {
+         const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newUser = await this.authRepository.createUser({
-         name,
-         email,
-         password: hashedPassword,
-      });
-
-      return newUser;
+         return await this.authRepository.createUser({
+            name,
+            email,
+            password: hashedPassword,
+         });
+      } catch (error) {
+         throw new InternalServerException("Failed to register user");
+      }
    }
 
    async login(body: SignInDto) {
       const { email, password } = body;
 
-      const user = await this.authRepository.findUserByEmail(email);
+      try {
+         const user = await this.authRepository.findUserByEmail(email);
 
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-         throw new UnauthorizedException("Invalid email or password");
+         if (!user || !(await bcrypt.compare(password, user.password))) {
+            throw new UnauthorizedException("Invalid email or password");
+         }
+
+         return await this.authRepository.updateLastLogin(user.id, new Date());
+      } catch (error) {
+         if (error instanceof UnauthorizedException) {
+            throw error;
+         }
+
+         throw new InternalServerException("Failed to login");
       }
-
-      return this.authRepository.updateLastLogin(user.id, new Date());
    }
 }
 
