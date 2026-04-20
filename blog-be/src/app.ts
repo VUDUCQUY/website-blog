@@ -12,8 +12,7 @@ const app = express();
 
 const PORT = Env.PORT || 5000;
 
-
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: '10mb' }));
 
 app.use(cookieParser());
 
@@ -29,7 +28,6 @@ app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 app.use('/api', routes);
 
 app.use(errorHandler);
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -5,10 +5,10 @@ import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
 import { Logger } from 'winston';
 export class AuthService {
-   constructor(
-      private readonly authRepository: IAuthRepository,
-      private readonly logger: Logger,
-   ) { }
+  constructor(
+    private readonly authRepository: IAuthRepository,
+    private readonly logger: Logger,
+  ) {}
 
    async register(body: SignUpDto) {
       const { name, email, password, confirmPassword } = body;
@@ -17,11 +17,11 @@ export class AuthService {
          throw new UnauthorizedException("Passwords do not match");
       }
 
-      const existingUser = await this.authRepository.findUserByEmail(email);
+    const existingUser = await this.authRepository.findUserByEmail(email);
 
-      if (existingUser) {
-         throw new UnauthorizedException("User with this email already exists");
-      }
+    if (existingUser) {
+      throw new UnauthorizedException('User with this email already exists');
+    }
 
       try {
          const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,6 +56,3 @@ export class AuthService {
       }
    }
 }
-
-
-

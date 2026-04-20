@@ -1,16 +1,16 @@
-import { HTTPSTATUS } from "@/config/http.config";
-import { clearJwtAuthCookie, setJwtAuthCookie } from "@/common/utils/cookie";
-import { Request, Response } from "express";
-import { AuthService } from "./auth.service";
-import { SignUpDto } from "./dto/signup.dto";
-import { SignInDto } from "./dto/signin.dto";
-import { Logger } from "winston";
+import { HTTPSTATUS } from '@/config/http.config';
+import { clearJwtAuthCookie, setJwtAuthCookie } from '@/common/utils/cookie';
+import { Request, Response } from 'express';
+import { AuthService } from './auth.service';
+import { SignUpDto } from './dto/signup.dto';
+import { SignInDto } from './dto/signin.dto';
+import { Logger } from 'winston';
 
 export class AuthController {
-   constructor(
-      private readonly authService: AuthService,
-      private readonly logger: Logger,
-   ) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly logger: Logger,
+  ) {}
 
    async register(req: Request, res: Response) {
       const dto = req.body as SignUpDto;
@@ -61,3 +61,11 @@ export class AuthController {
 
 }
 
+  async authStatus(req: Request, res: Response) {
+    const user = req.user;
+    return res.status(HTTPSTATUS.OK).json({
+      message: 'User authenticated successfully',
+      user,
+    });
+  }
+}

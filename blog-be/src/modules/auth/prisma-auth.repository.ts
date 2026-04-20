@@ -3,11 +3,20 @@ import { CreateUserData, IAuthRepository } from "./auth.repository";
 import { Logger } from "winston";
 
 export class PrismaAuthRepository implements IAuthRepository {
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly logger: Logger,
+  ) {}
 
-    constructor(
-        private readonly prisma: PrismaClient,
-        private readonly logger: Logger,
-    ) { }
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+        isDeleted: false,
+        isActive: true,
+      },
+    });
+  }
 
     async findUserByEmail(email: string): Promise<User | null> {
         return this.prisma.user.findUnique({
