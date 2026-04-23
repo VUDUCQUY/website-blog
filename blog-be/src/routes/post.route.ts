@@ -41,4 +41,8 @@ postRouter.patch("/:post_id/draft", passportAuthenticateJwt, postController.save
 
 postRouter.patch("/:post_id/publish", passportAuthenticateJwt, postController.publishPost.bind(postController));
 
+postRouter.get("/draft/:user_id", passportAuthenticateJwt, postController.getPostDraftByUserId.bind(postController));
+
+postRouter.get("/published/:user_id", passportAuthenticateJwt, postController.getPostPublishedByUserId.bind(postController));
+
 export default postRouter;

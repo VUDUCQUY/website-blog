@@ -28,4 +28,8 @@ export interface IPostRepository {
   findPostByUserId(page: number, limit: number, userId: string): Promise<Post[]>;
 
   findPostByCategoryId(page: number, limit: number, categoryId: string): Promise<Post[]>;
+
+  findPostDraftByUserId(page: number, limit: number, userId: string): Promise<Post[]>;
+
+  findPostPublishedByUserId(page: number, limit: number, userId: string): Promise<Post[]>;
 } 

@@ -98,4 +98,26 @@ export class PostController {
             message: "Post published successfully"
         });
     }
+
+    async getPostDraftByUserId(req: Request, res: Response, next: NextFunction){
+        const userId = (req as any).user.id;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const posts = await this.postService.getPostDraftByUserId(page, limit, userId);
+        res.status(200).json({
+            message: "Post drafts fetched successfully",
+            data: posts,
+        });
+    }
+
+    async getPostPublishedByUserId(req: Request, res: Response, next: NextFunction){
+        const userId = (req as any).user.id;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const posts = await this.postService.getPostPublishedByUserId(page, limit, userId);
+        res.status(200).json({
+            message: "Post published fetched successfully",
+            data: posts,
+        });
+    }
 }

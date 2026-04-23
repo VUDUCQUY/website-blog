@@ -230,4 +230,12 @@ export class PostService {
             throw error;
         }
     }
+
+    async getPostDraftByUserId(page: number, limit: number, userId: string): Promise<Post[]> {
+        return this.postRepository.findPostDraftByUserId(page, limit, userId);
+    }
+
+    async getPostPublishedByUserId(page: number, limit: number, userId: string): Promise<Post[]> {
+        return this.postRepository.findPostPublishedByUserId(page, limit, userId);
+    }
 }

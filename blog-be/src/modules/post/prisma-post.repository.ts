@@ -14,9 +14,11 @@ export class PrismaPostRepository implements IPostRepository {
             where: { slug },
         });
     }
-    
-    async createPost(data: Omit<CreatePostDto, 'images'> & {slug: string, thumbnailUrl: string | null, thumbnailPublicId: string | null,
-    images: { url: string; publicId: string }[]}, userId: string, ): Promise<Post> {
+
+    async createPost(data: Omit<CreatePostDto, 'images'> & {
+        slug: string, thumbnailUrl: string | null, thumbnailPublicId: string | null,
+        images: { url: string; publicId: string }[]
+    }, userId: string,): Promise<Post> {
         console.log("images before create:", data.images);
         return this.prisma.post.create({
             data: {
@@ -71,6 +73,7 @@ export class PrismaPostRepository implements IPostRepository {
             where: {
                 isDeleted: false,
                 isActive: true,
+                isDraft: false,
             },
             skip: (page - 1) * limit,
             take: limit,
@@ -113,16 +116,18 @@ export class PrismaPostRepository implements IPostRepository {
         });
     }
 
-    async updatePost(data:  Omit<UpdatePostDto, 'images'> & {slug: string, thumbnailUrl: string | null, thumbnailPublicId: string | null,
-    images: { url: string; publicId: string }[]}, userId: string, postId:string): Promise<Post> {
+    async updatePost(data: Omit<UpdatePostDto, 'images'> & {
+        slug: string, thumbnailUrl: string | null, thumbnailPublicId: string | null,
+        images: { url: string; publicId: string }[]
+    }, userId: string, postId: string): Promise<Post> {
         return this.prisma.post.update({
             where: {
-                id:postId,
+                id: postId,
                 userId: userId,
-                isDeleted:false,
-                isActive:true,
+                isDeleted: false,
+                isActive: true,
             },
-            data:{
+            data: {
                 title: data.title,
                 content: data.content,
                 thumbnailUrl: data.thumbnailUrl,
@@ -130,48 +135,82 @@ export class PrismaPostRepository implements IPostRepository {
                 images: data.images.length > 0 ? data.images : undefined,
                 categoryId: data.categoryId,
                 slug: data.slug,
-                updatedBy:userId,
+                updatedBy: userId,
             }
         })
     }
 
-    async deletePost(user_id:string, post_id:string): Promise<Post>{
+    async deletePost(user_id: string, post_id: string): Promise<Post> {
         return this.prisma.post.update({
             where: {
-                id:post_id,
+                id: post_id,
                 userId: user_id,
-                isDeleted:false,
-                isActive:true,
+                isDeleted: false,
+                isActive: true,
             },
-            data:{
-                isDeleted:true,
-                isActive:false,
-                updatedBy:user_id,
+            data: {
+                isDeleted: true,
+                isActive: false,
+                updatedBy: user_id,
             }
         })
     }
 
-    async saveDraft(userId:string, postId:string): Promise<Post>{
+    async saveDraft(userId: string, postId: string): Promise<Post> {
         return this.prisma.post.update({
             where: {
-                id:postId,                
+                id: postId,
             },
-            data:{
-               isDraft:true,
-               updatedBy:userId,
+            data: {
+                isDraft: true,
+                updatedBy: userId,
             }
         })
     }
 
-    async publishPost(userId:string, postId:string): Promise<Post>{
+    async publishPost(userId: string, postId: string): Promise<Post> {
         return this.prisma.post.update({
             where: {
-                id:postId,                
+                id: postId,
             },
-            data:{
-                isDraft:false,
-                updatedBy:userId,
+            data: {
+                isDraft: false,
+                updatedBy: userId,
             }
         })
+    }
+
+    async findPostDraftByUserId(page: number, limit: number, userId: string): Promise<Post[]> {
+        return this.prisma.post.findMany({
+            where: {
+                userId: userId,
+                isDraft: true,
+                isDeleted: false,
+                isActive: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            skip: (page - 1) * limit,
+            take: limit,
+
+        });
+    }
+
+    async findPostPublishedByUserId(page: number, limit: number, userId: string): Promise<Post[]> {
+        return this.prisma.post.findMany({
+            where: {
+                userId: userId,
+                isDraft: false,
+                isDeleted: false,
+                isActive: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            skip: (page - 1) * limit,
+            take: limit,
+
+        });
     }
 }
