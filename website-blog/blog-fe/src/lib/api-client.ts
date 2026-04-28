@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'development'
-  ? '/memorizz-api'
-  : (process.env.NEXT_PUBLIC_API_URL || 'https://memorizz-api.onrender.com/api');
+const API_BASE_URL = '/memorizz-api';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -16,15 +14,15 @@ apiClient.interceptors.request.use(
   (config) => {
     // Avoid logging token warnings for public auth routes
     const isPublicAuthRoute = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
-    
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    
+
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers['Authorization'] = `Bearer ${token}`;
     } else if (!isPublicAuthRoute) {
-      // console.warn(`[API Request] NO TOKEN found for ${config.url}`);
+      console.warn(`[API Request] NO TOKEN found for ${config.url}`);
     }
-    
+
     return config;
   },
   (error) => Promise.reject(error)
