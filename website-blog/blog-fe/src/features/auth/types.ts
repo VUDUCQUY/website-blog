@@ -8,6 +8,8 @@ export interface User {
   bio?: string;
   role: Role;
   isActive: boolean;
+  articlesCount?: number;
+  followersCount?: number;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
