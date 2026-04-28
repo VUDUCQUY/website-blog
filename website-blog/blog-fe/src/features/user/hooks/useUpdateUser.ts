@@ -3,7 +3,7 @@ import apiClient from '@/lib/api-client';
 
 interface UpdateUserDto {
   name: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | 'AUTHOR';
 }
 
 
