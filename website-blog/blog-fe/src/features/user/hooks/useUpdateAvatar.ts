@@ -15,7 +15,26 @@ export function useUpdateAvatar() {
       return response.data;
     },
     onSuccess: (data) => {
-      updateUser(data.profile);
+      const updatedUser = data.profile;
+      updateUser(updatedUser);
+
+      // Sync new avatar with Quick Login list (localStorage)
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('saved_accounts');
+        if (saved) {
+          try {
+            const accounts = JSON.parse(saved);
+            const updated = accounts.map((a: any) => 
+              a.email === updatedUser.email 
+                ? { ...a, avatar_url: updatedUser.avatar_url } 
+                : a
+            );
+            localStorage.setItem('saved_accounts', JSON.stringify(updated));
+          } catch (e) {
+            console.error('Failed to sync saved accounts:', e);
+          }
+        }
+      }
     },
   });
 }

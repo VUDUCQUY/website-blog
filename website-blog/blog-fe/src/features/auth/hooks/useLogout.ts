@@ -22,7 +22,7 @@ export function useLogout() {
           localStorage.removeItem('auth-storage');
         }
         queryClient.clear();
-        router.push('/signin');
+        router.push('/');
       }
     },
   });
