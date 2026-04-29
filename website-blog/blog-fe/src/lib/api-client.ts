@@ -38,8 +38,10 @@ apiClient.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      // Handle unauthorized error (e.g., redirect to login or clear token)
-      if (typeof window !== 'undefined') {
+      // Avoid clearing token for public routes that might return 401 (e.g. if guest-only)
+      const isPublicAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+      
+      if (typeof window !== 'undefined' && !isPublicAuthRoute) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         // window.location.href = '/signin'; 

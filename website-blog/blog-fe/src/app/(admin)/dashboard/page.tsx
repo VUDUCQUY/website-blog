@@ -1,7 +1,17 @@
 'use client';
 
 import { Card, CardContent, CardHeader, Button, Modal } from '@/components/ui';
-import { Users, Shield, Lock, Unlock, UserPlus, Save, Edit } from 'lucide-react';
+import { 
+  Users, 
+  UserPlus, 
+  Shield, 
+  Lock, 
+  Unlock, 
+  Save, 
+  Edit,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useAllUsers } from '@/features/user/hooks/useAllUsers';
@@ -22,6 +32,7 @@ export default function AdminDashboard() {
   // State for editing user
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editRole, setEditRole] = useState<'ADMIN' | 'USER'>('USER');
+  const [showPassword, setShowPassword] = useState(false);
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser(editingUser?.id || '');
 
   const handleAddUser = (e: React.FormEvent) => {
@@ -240,14 +251,23 @@ export default function AdminDashboard() {
               className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
               required
             />
-            <input 
-              type="password"
-              placeholder="Initial Password"
-              value={newData.password}
-              onChange={(e) => setNewData({...newData, password: e.target.value})}
-              className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
-              required
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"}
+                placeholder="Initial Password"
+                value={newData.password}
+                onChange={(e) => setNewData({...newData, password: e.target.value})}
+                className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 pr-12 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="pt-8 flex gap-4 w-full">
