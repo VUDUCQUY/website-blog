@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
 
 interface UpdateUserDto {
-  name: string;
+  name?: string;
   role: 'ADMIN' | 'USER' | 'AUTHOR';
 }
 

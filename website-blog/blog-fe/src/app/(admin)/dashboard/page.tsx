@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUser({ name: editName, role: editRole }, {
+    updateUser({ role: editRole }, {
       onSuccess: () => {
         setEditingUser(null);
       },
@@ -207,15 +207,11 @@ export default function AdminDashboard() {
         <form onSubmit={handleUpdate} className="space-y-6 mt-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-              Display Name
+              User Identity (Read-only)
             </label>
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 outline-none focus:border-primary transition-all font-bold"
-              placeholder="Enter user's name..."
-            />
+            <div className="w-full bg-muted/10 border border-card-border rounded-xl px-4 py-3 font-bold opacity-70">
+              {editingUser?.name}
+            </div>
           </div>
 
           <div className="space-y-2">

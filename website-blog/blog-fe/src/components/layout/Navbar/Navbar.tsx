@@ -32,13 +32,15 @@ export const Navbar = () => {
               Home
             </Link>
             <Link 
-              href="/categories" 
+              href="#" 
+              prefetch={false}
               className={`${styles.link} ${pathname === "/categories" ? styles.active : ""}`}
             >
               Categories
             </Link>
             <Link 
-              href="/about" 
+              href="#" 
+              prefetch={false}
               className={`${styles.link} ${pathname === "/about" ? styles.active : ""}`}
             >
               About
