@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 const API_BASE_URL = '/memorizz-api';
 
@@ -12,7 +13,12 @@ apiClient.interceptors.request.use(
     // Avoid logging token warnings for public auth routes
     const isPublicAuthRoute = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // Get token from store first, fallback to localStorage
+    let token = useAuthStore.getState().token;
+    
+    if (!token && typeof window !== 'undefined') {
+      token = localStorage.getItem('token');
+    }
 
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -29,22 +35,23 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status;
+    const url = error.config?.url || '';
+    const isPublicAuthRoute = url.includes('/auth/login') || url.includes('/auth/register');
+
     // Log detailed error info for debugging
     if (error.response) {
-      console.error('❌ API Error Details');
-      console.error('URL:', error.config?.url);
-      console.error('Status:', error.response.status);
+      console.error(`❌ API Error [${status}] on ${url}`);
       console.error('Data:', error.response.data);
     }
 
-    if (error.response?.status === 401) {
-      // Avoid clearing token for public routes that might return 401 (e.g. if guest-only)
-      const isPublicAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
-      
-      if (typeof window !== 'undefined' && !isPublicAuthRoute) {
+    if (status === 401 && !isPublicAuthRoute) {
+      console.error('🚨 Session expired or unauthorized. Clearing session...');
+      if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        // window.location.href = '/signin'; 
+        // Clear zustand store
+        useAuthStore.getState().logout();
       }
     }
     return Promise.reject(error);
