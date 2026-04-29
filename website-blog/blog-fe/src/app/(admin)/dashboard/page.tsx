@@ -219,9 +219,9 @@ export default function AdminDashboard() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         title="Create New System User"
-        className="bg-card-bg/95 backdrop-blur-xl border-card-border/50 max-w-lg"
+        className="bg-card-bg/95 backdrop-blur-xl border-card-border/50"
       >
-        <form onSubmit={handleAddUser} className="space-y-4 mt-4">
+        <form onSubmit={handleAddUser} className="space-y-4 mt-4 w-full">
           <div className="grid grid-cols-1 gap-4">
             <input 
               type="text"
@@ -249,11 +249,11 @@ export default function AdminDashboard() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
               Assign Initial Role
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-3 w-full">
               {['ADMIN', 'USER'].map((role) => (
                 <button
                   key={role}
@@ -272,7 +272,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="pt-6 flex gap-4">
+          <div className="pt-8 flex gap-4 w-full">
             <Button
               type="button"
               variant="ghost"
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
         title="Edit User Access"
         className="bg-card-bg/95 backdrop-blur-xl border-card-border/50"
       >
-        <form onSubmit={handleUpdate} className="space-y-6 mt-4">
+        <form onSubmit={handleUpdate} className="space-y-6 mt-4 w-full">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
               User Identity (Read-only)
@@ -310,11 +310,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
               Assign Role
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-3 w-full">
               {['ADMIN', 'USER'].map((role) => (
                 <button
                   key={role}
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="pt-6 flex gap-4">
+          <div className="pt-8 flex gap-4 w-full">
             <Button
               type="button"
               variant="ghost"
