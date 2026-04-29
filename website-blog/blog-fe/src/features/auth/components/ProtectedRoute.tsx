@@ -23,7 +23,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   useEffect(() => {
     if (isReady && (!token || !user)) {
-      router.push('/signin');
+      router.push('/');
     }
   }, [isReady, user, token, router]);
 
