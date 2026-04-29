@@ -33,7 +33,6 @@ export const HeroSection = () => {
               alt="Author avatar"
               width={48}
               height={48}
-              style={{ width: 'auto', height: 'auto' }}
               className={styles.avatar}
             />
             <div className={styles.authorInfo}>

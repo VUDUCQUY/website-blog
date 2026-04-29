@@ -1,27 +1,44 @@
 'use client';
 
 import { Card, CardContent, CardHeader, Button, Modal } from '@/components/ui';
-import { Users, Shield, Lock, Unlock, UserPlus, X, Save, ShieldAlert, Edit } from 'lucide-react';
+import { Users, Shield, Lock, Unlock, UserPlus, Save, Edit } from 'lucide-react';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useAllUsers } from '@/features/user/hooks/useAllUsers';
 import { useUpdateUserStatus } from '@/features/user/hooks/useUpdateUserStatus';
 import { useUpdateUser } from '@/features/user/hooks/useUpdateUser';
+import { useCreateUser } from '@/features/user/hooks/useCreateUser';
 import { User } from '@/features/auth/types';
 
 export default function AdminDashboard() {
   const { data: users, isLoading } = useAllUsers();
   const { mutate: toggleStatus } = useUpdateUserStatus();
 
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editRole, setEditRole] = useState<'ADMIN' | 'AUTHOR' | 'USER'>('USER');
+  // State for adding user
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newData, setNewData] = useState({ name: '', email: '', password: '', role: 'USER' });
+  const { mutate: createUser, isPending: isCreatingUser } = useCreateUser();
 
+  // State for editing user
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editRole, setEditRole] = useState<'ADMIN' | 'USER'>('USER');
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser(editingUser?.id || '');
+
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    createUser(newData, {
+      onSuccess: () => {
+        setIsAddModalOpen(false);
+        setNewData({ name: '', email: '', password: '', role: 'USER' });
+      },
+      onError: (err: any) => {
+        alert('Failed to create user: ' + (err.response?.data?.message || err.message));
+      }
+    });
+  };
 
   const handleEditClick = (user: User) => {
     setEditingUser(user);
-    setEditName(user.name);
     setEditRole(user.role as any);
   };
 
@@ -54,7 +71,7 @@ export default function AdminDashboard() {
           <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-2 italic">Manage real users, permissions, and system settings.</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setIsAddModalOpen(true)}>
           <UserPlus size={18} />
           Add New User
         </Button>
@@ -197,6 +214,85 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
+      {/* Add New User Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Create New System User"
+        className="bg-card-bg/95 backdrop-blur-xl border-card-border/50 max-w-lg"
+      >
+        <form onSubmit={handleAddUser} className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 gap-4">
+            <input 
+              type="text"
+              placeholder="Full Name"
+              value={newData.name}
+              onChange={(e) => setNewData({...newData, name: e.target.value})}
+              className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+              required
+            />
+            <input 
+              type="email"
+              placeholder="Email Address"
+              value={newData.email}
+              onChange={(e) => setNewData({...newData, email: e.target.value})}
+              className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+              required
+            />
+            <input 
+              type="password"
+              placeholder="Initial Password"
+              value={newData.password}
+              onChange={(e) => setNewData({...newData, password: e.target.value})}
+              className="w-full bg-background/50 border border-card-border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+              Assign Initial Role
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {['ADMIN', 'USER'].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setNewData({...newData, role})}
+                  className={twMerge(
+                    "p-3 rounded-xl border text-[10px] font-black tracking-widest uppercase transition-all",
+                    newData.role === role
+                      ? "bg-primary/10 border-primary text-primary shadow-lg"
+                      : "bg-card-bg/50 border-card-border text-muted-foreground hover:border-primary/50"
+                  )}
+                >
+                  {role}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-6 flex gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex-1 font-bold uppercase tracking-widest text-[10px] rounded-xl"
+              onClick={() => setIsAddModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              isLoading={isCreatingUser}
+              className="flex-[2] font-bold uppercase tracking-widest text-[10px] rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xl shadow-primary/20"
+            >
+              <UserPlus size={16} className="mr-2" />
+              Create User
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Edit User Modal */}
       <Modal
         isOpen={!!editingUser}
@@ -219,7 +315,7 @@ export default function AdminDashboard() {
               Assign Role
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {['ADMIN', 'AUTHOR', 'USER'].map((role) => (
+              {['ADMIN', 'USER'].map((role) => (
                 <button
                   key={role}
                   type="button"
@@ -227,7 +323,7 @@ export default function AdminDashboard() {
                   className={twMerge(
                     "p-3 rounded-xl border text-[10px] font-black tracking-widest uppercase transition-all",
                     editRole === role
-                      ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]"
+                      ? "bg-primary/10 border-primary text-primary shadow-lg"
                       : "bg-card-bg/50 border-card-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -241,7 +337,7 @@ export default function AdminDashboard() {
             <Button
               type="button"
               variant="ghost"
-              className="flex-1 font-bold uppercase tracking-widest text-[10px] rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="flex-1 font-bold uppercase tracking-widest text-[10px] rounded-xl"
               onClick={() => setEditingUser(null)}
             >
               Discard
@@ -249,9 +345,9 @@ export default function AdminDashboard() {
             <Button
               type="submit"
               isLoading={isUpdating}
-              className="flex-[2] font-bold uppercase tracking-widest text-[10px] rounded-xl gap-2 shadow-xl shadow-primary/20 bg-primary hover:bg-primary-hover text-white transition-all hover:scale-[1.02] active:scale-95"
+              className="flex-[2] font-bold uppercase tracking-widest text-[10px] rounded-xl bg-primary hover:bg-primary-hover text-white shadow-xl shadow-primary/20"
             >
-              <Save size={16} />
+              <Save size={16} className="mr-2" />
               Confirm Update
             </Button>
           </div>
