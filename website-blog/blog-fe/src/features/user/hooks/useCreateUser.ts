@@ -6,7 +6,6 @@ interface CreateUserDto {
   name: string;
   email: string;
   password: string;
-  role: string;
 }
 
 export function useCreateUser() {
@@ -16,7 +15,11 @@ export function useCreateUser() {
     mutationFn: async (dto: CreateUserDto) => {
       // For now, we use /auth/register but we might want a dedicated admin endpoint later
       // NOTE: We don't use useSignup here to avoid auto-logging into the new account
-      const { data } = await apiClient.post<{ user: User }>('/auth/register', dto);
+      const signUpData = {
+        ...dto,
+        confirmPassword: dto.password,
+      };
+      const { data } = await apiClient.post<{ user: User }>('/auth/register', signUpData);
       return data;
     },
     onSuccess: () => {
