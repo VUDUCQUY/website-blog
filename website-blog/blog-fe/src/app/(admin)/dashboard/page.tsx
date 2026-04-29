@@ -37,8 +37,7 @@ export default function AdminDashboard() {
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
-    const { role, ...creationData } = newData;
-    createUser(creationData, {
+    createUser(newData, {
       onSuccess: () => {
         setIsAddModalOpen(false);
         setNewData({ name: '', email: '', password: '', role: 'USER' });
@@ -267,6 +266,29 @@ export default function AdminDashboard() {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+              Assign Initial Role
+            </label>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              {['ADMIN', 'USER'].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setNewData({...newData, role: role as any})}
+                  className={twMerge(
+                    "p-3 rounded-xl border text-[10px] font-black tracking-widest uppercase transition-all",
+                    newData.role === role
+                      ? "bg-primary/10 border-primary text-primary shadow-lg"
+                      : "bg-card-bg/50 border-card-border text-muted-foreground hover:border-primary/50"
+                  )}
+                >
+                  {role}
+                </button>
+              ))}
             </div>
           </div>
 
