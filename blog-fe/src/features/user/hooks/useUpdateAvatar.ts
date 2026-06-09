@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import apiClient from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 import { User } from '@/features/auth/types';
 
 export function useUpdateAvatar() {
@@ -31,7 +32,7 @@ export function useUpdateAvatar() {
             );
             localStorage.setItem('saved_accounts', JSON.stringify(updated));
           } catch (e) {
-            console.error('Failed to sync saved accounts:', e);
+            logger.error('Failed to sync saved accounts:', e);
           }
         }
       }

@@ -4,6 +4,8 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import dynamicImport from 'next/dynamic';
 import { useCreatePost } from '@/features/posts/hooks/usePosts';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 
 const PostForm = dynamicImport(() => import('@/features/posts/components/PostForm').then(mod => mod.PostForm), {
   ssr: false,
@@ -21,14 +23,16 @@ export default function CreatePostPage() {
         router.push('/posts/manage');
       },
       onError: (error) => {
-        alert(`Failed to create post: ${error.message}`);
+        toast.error(`Failed to create post: ${error.message}`);
       }
     });
   };
 
   return (
-    <div className="container py-8 pb-20">
-      <PostForm onSubmit={handleSubmit} isLoading={isPending} />
-    </div>
+    <ProtectedRoute>
+      <div className="container py-8 pb-20">
+        <PostForm onSubmit={handleSubmit} isLoading={isPending} />
+      </div>
+    </ProtectedRoute>
   );
 }

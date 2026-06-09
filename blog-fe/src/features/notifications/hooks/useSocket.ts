@@ -6,7 +6,24 @@ import { Notification, NotificationType } from '../types';
 import { toast } from 'sonner';
 
 const getSocketUrl = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://memorizz-api.onrender.com/api';
+  // Use NEXT_PUBLIC_WS_URL if defined, otherwise fallback to NEXT_PUBLIC_API_URL
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+  if (wsUrl) return wsUrl;
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/memorizz-api';
+  
+  // If the API URL is a relative path (like '/memorizz-api'), we must connect the WebSocket
+  // directly to the absolute backend URL, because Vercel frontend does not support WebSocket proxying.
+  if (apiUrl.startsWith('/')) {
+    if (typeof window !== 'undefined') {
+      if (window.location.hostname === 'localhost') {
+        return 'http://localhost:5000';
+      }
+      // console.warn('⚠️ relative NEXT_PUBLIC_API_URL is used. Falling back to production backend WebSocket at memorizz-api.onrender.com');
+    }
+    return 'https://memorizz-api.onrender.com';
+  }
+  
   return apiUrl.replace(/\/api\/?$/, '');
 };
 
@@ -26,7 +43,7 @@ export function useSocket() {
       return;
     }
 
-    console.log('🔌 Connecting to WebSocket at:', SOCKET_URL);
+    // console.log('🔌 Connecting to WebSocket at:', SOCKET_URL);
 
     // Initialize socket with token and userId in auth handshake
     const socket = io(SOCKET_URL, {
@@ -40,18 +57,18 @@ export function useSocket() {
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('✅ Connected to WebSocket');
+      // console.log('✅ Connected to WebSocket');
       // Join a private room for the user
       socket.emit('join', user.id);
     });
 
     socket.on('disconnect', () => {
-      console.log('❌ Disconnected from WebSocket');
+      // console.log('❌ Disconnected from WebSocket');
     });
 
     // Handle notification events
     const handleNotification = (rawNotification: any) => {
-      console.log('📩 Received socket notification:', rawNotification);
+      // console.log('📩 Received socket notification:', rawNotification);
 
       // Check if notification is already in the FE format
       if (rawNotification.actor && rawNotification.post) {
@@ -101,7 +118,7 @@ export function useSocket() {
       };
 
       addNotification(feNotification);
-      
+
       // Show high-end modern rich toast
       let toastMsg = `${actorName} `;
       if (typeLower === 'like') toastMsg += 'liked your post';

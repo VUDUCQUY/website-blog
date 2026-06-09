@@ -1,15 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 import { Post } from '../types';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 export function usePost(id: string) {
+  const token = useAuthStore((s) => s.token);
   return useQuery<Post, Error>({
     queryKey: ['posts', id],
     queryFn: async () => {
       const { data } = await apiClient.get<{ data: Post }>(`/post/${id}`);
       return data.data;
     },
-    enabled: !!id,
+    enabled: !!id && !!token,
   });
 }
 
@@ -48,7 +51,7 @@ export function useUpdatePost(id: string) {
             await apiClient.post(`/post/${id}/tags`, { tagIds });
           }
         } catch (error) {
-          console.error('[useUpdatePost] Error updating tags:', error);
+          logger.error('[useUpdatePost] Error updating tags:', error);
         }
       }
       

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import apiClient from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 import { User } from '@/features/auth/types';
 
 interface UpdateProfileData {
@@ -20,7 +21,7 @@ export function useUpdateProfile() {
 
         return response.data;
       } catch (error: any) {
-        console.error('[Profile Update Error]', error.response?.data || error.message);
+        logger.error('[Profile Update Error]', error.response?.data || error.message);
         throw error;
       }
     },
@@ -43,7 +44,7 @@ export function useUpdateProfile() {
             );
             localStorage.setItem('saved_accounts', JSON.stringify(updated));
           } catch (e) {
-            console.error('Failed to sync saved accounts:', e);
+            logger.error('Failed to sync saved accounts:', e);
           }
         }
       }

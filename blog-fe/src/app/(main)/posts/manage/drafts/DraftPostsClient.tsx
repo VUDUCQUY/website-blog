@@ -4,7 +4,7 @@ import React, { Suspense } from 'react';
 import { useMyPosts } from '@/features/posts/hooks/usePosts';
 import { useDeletePost } from '@/features/posts/hooks/usePostActions';
 import { PostManagementCard } from '@/features/posts/components/PostManagementCard';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, ConfirmModal } from '@/components/ui';
 import { Plus, ChevronLeft, FileText } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,10 +12,10 @@ function DraftPostsContent() {
   const { data: draftPosts, isLoading } = useMyPosts('draft');
   const { mutate: deletePost } = useDeletePost();
 
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
+
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this draft?')) {
-      deletePost(id);
-    }
+    setConfirmDeleteId(id);
   };
 
   return (
@@ -78,6 +78,17 @@ function DraftPostsContent() {
           </Card>
         )}
       </div>
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => {
+          if (confirmDeleteId) deletePost(confirmDeleteId);
+        }}
+        title="Delete Draft"
+        message="Are you sure you want to delete this draft? This action cannot be undone."
+        confirmLabel="Delete Draft"
+        variant="destructive"
+      />
     </div>
   );
 }

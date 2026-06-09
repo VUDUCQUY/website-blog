@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useCreatePost } from '@/features/posts/hooks/usePosts';
+import { toast } from 'sonner';
 
 const PostForm = dynamic(() => import('@/features/posts/components/PostForm').then(mod => mod.PostForm), {
   ssr: false,
@@ -21,7 +22,7 @@ export function CreatePostClient() {
         router.push('/posts/manage');
       },
       onError: (error) => {
-        alert(`Failed to create post: ${error.message}`);
+        toast.error(`Failed to create post: ${error.message}`);
       }
     });
   };

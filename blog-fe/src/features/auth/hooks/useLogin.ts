@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { User } from '../types';
 import apiClient from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface LoginCredentials {
   email: string;
@@ -27,7 +28,7 @@ export function useLogin() {
       const user = data.user || data.data?.user || data;
 
       if (!token) {
-        console.error('[Login Error] No token found in response!', data);
+        logger.error('[Login Error] No token found in response!', data);
       }
 
       // Store user and token in Zustand

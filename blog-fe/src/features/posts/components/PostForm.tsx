@@ -8,6 +8,7 @@ const PostEditor = dynamic(() => import('./PostEditor').then(mod => mod.PostEdit
   ssr: false,
   loading: () => <div className="h-64 bg-card-bg/20 animate-pulse rounded-xl border border-card-border flex items-center justify-center text-muted-foreground">Loading editor...</div>
 });
+import { toast } from 'sonner';
 import { useCategories, useTags } from '../hooks/useMetadata';
 import { Camera, Save, Send, ChevronLeft, Tag as TagIcon, Layout } from 'lucide-react';
 import Image from 'next/image';
@@ -67,15 +68,15 @@ export const PostForm: React.FC<PostFormProps> = ({ initialData, onSubmit, isLoa
 
     // Frontend Validation
     if (!title.trim()) {
-      alert('Article title is required!');
+      toast.error('Article title is required!');
       return;
     }
     if (content.replace(/<[^>]*>/g, '').length < 10) {
-      alert('Content must be at least 10 characters long!');
+      toast.error('Content must be at least 10 characters long!');
       return;
     }
     if (!categoryId) {
-      alert('Please select a category!');
+      toast.error('Please select a category!');
       return;
     }
 

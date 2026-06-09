@@ -197,7 +197,7 @@ export class PostController {
       });
     }
 
-    await this.postService.detachTagFromPost(postId, tagId);
+    await this.postService.detachTagFromPost(userId, postId, tagId);
     res.status(200).json({
       message: 'Tag detached from post successfully',
     });

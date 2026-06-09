@@ -17,9 +17,9 @@ async function main() {
     take: 5,
   });
 
-  console.log('--- Published Posts in DB ---');
+  // console.log('--- Published Posts in DB ---');
   posts.forEach((p, i) => {
-    console.log(`${i + 1}. Title: ${p.title}`);
+    // console.log(`${i + 1}. Title: ${p.title}`);
   });
 }
 

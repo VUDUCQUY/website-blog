@@ -18,6 +18,7 @@ import { authorize } from '@/common/middleware/authorize.middlerware';
 import { PrismaPostInteractionRepository } from '@/modules/post-interaction/post-interaction.repository';
 import { PostInteractionService } from '@/modules/post-interaction/post-interaction.service';
 import { PostInteractionController } from '@/modules/post-interaction/post-interaction.controller';
+import { postRateLimiter } from '@/common/middleware/post-rate-limit.middleware';
 
 const postRouter = Router();
 const postRepository = new PrismaPostRepository(prisma);
@@ -31,6 +32,7 @@ const postInteractionController = new PostInteractionController(postInteractionS
 postRouter.post(
   '',
   passportAuthenticateJwt,
+  postRateLimiter,
   uploadImage.fields([
     { name: 'thumbnail', maxCount: 1 },
     { name: 'images', maxCount: 10 },

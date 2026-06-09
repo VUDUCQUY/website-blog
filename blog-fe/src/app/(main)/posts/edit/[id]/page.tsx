@@ -6,6 +6,8 @@ import dynamicImport from 'next/dynamic';
 import { usePost, useUpdatePost } from '@/features/posts/hooks/usePostActions';
 import { Button } from '@/components/ui';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 
 const PostForm = dynamicImport(() => import('@/features/posts/components/PostForm').then(mod => mod.PostForm), {
   ssr: false,
@@ -25,7 +27,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         router.push('/posts/manage');
       },
       onError: (err) => {
-        alert('Failed to update post: ' + err.message);
+        toast.error('Failed to update post: ' + err.message);
       }
     });
   };
@@ -59,18 +61,20 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container py-12">
-      <PostForm 
-        initialData={{
-          title: post.title,
-          content: post.content,
-          categoryId: post.categoryId,
-          thumbnailUrl: post.thumbnailUrl || undefined,
-          tags: post.tags?.map((t) => t.tag.name) || [],
-        }}
-        onSubmit={handleSubmit}
-        isLoading={isUpdating}
-      />
-    </div>
+    <ProtectedRoute>
+      <div className="container py-12">
+        <PostForm 
+          initialData={{
+            title: post.title,
+            content: post.content,
+            categoryId: post.categoryId,
+            thumbnailUrl: post.thumbnailUrl || undefined,
+            tags: post.tags?.map((t) => t.tag.name) || [],
+          }}
+          onSubmit={handleSubmit}
+          isLoading={isUpdating}
+        />
+      </div>
+    </ProtectedRoute>
   );
 }

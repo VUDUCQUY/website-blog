@@ -10,7 +10,7 @@ export const initSocket = (server: any) => {
   });
 
   io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    // console.log('User connected:', socket.id);
 
     const userId = socket.handshake.auth.userId;
 
@@ -19,7 +19,7 @@ export const initSocket = (server: any) => {
     }
 
     socket.on('disconnect', () => {
-      console.log('User disconnected');
+      // console.log('User disconnected');
     });
   });
 };

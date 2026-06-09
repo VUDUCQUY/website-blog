@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks";
 import apiClient from "@/lib/api-client";
+import { logger } from "@/lib/logger";
 import { Loader2 } from "lucide-react";
 
 function CallbackContent() {
@@ -35,7 +36,7 @@ function CallbackContent() {
           setTimeout(() => router.push("/signin?error=fetch_failed"), 2000);
         }
       } catch (err) {
-        console.error("OAuth callback error", err);
+        logger.error("OAuth callback error", err);
         setError("Authentication failed");
         setTimeout(() => router.push("/signin?error=auth_failed"), 2000);
       }

@@ -3,6 +3,9 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   turbopack: {
     root: path.resolve(process.cwd(), "../../"),
   },
@@ -10,7 +13,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/memorizz-api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://memorizz-api.onrender.com/api'}/:path*`,
+        destination: `${process.env.BACKEND_API_URL || 'https://memorizz-api.onrender.com/api'}/:path*`,
       },
     ];
   },
@@ -23,6 +26,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'plus.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'ui-avatars.com', pathname: '/**' },
       { protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', pathname: '/**' },
     ],
   },
 };

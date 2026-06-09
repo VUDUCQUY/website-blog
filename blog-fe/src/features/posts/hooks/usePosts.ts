@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 import { Post } from '../types';
 import { useAuthStore } from '@/features/auth/store/authStore';
 
@@ -9,7 +10,7 @@ export function useCreatePost() {
   return useMutation({
     mutationFn: async ({ formData, shouldPublish = false }: { formData: FormData; shouldPublish?: boolean }) => {
       try {
-        console.log(`[useCreatePost] Creating draft...`);
+        // console.log(`[useCreatePost] Creating draft...`);
 
         // Step 1: Create the post
         // Remove isDraft because the backend DTO doesn't allow it
@@ -18,22 +19,22 @@ export function useCreatePost() {
         const response = await apiClient.post<{ message: string; data: Post }>('/post', formData);
         const createdPost = response.data.data;
 
-        console.log(`[useCreatePost] Draft created with ID:`, createdPost?.id);
+        // console.log(`[useCreatePost] Draft created with ID:`, createdPost?.id);
 
         // Step 2: If publishing, wait a tiny bit then call publish
         if (shouldPublish && createdPost?.id) {
-          console.log(`[useCreatePost] Waiting for DB sync...`);
+          // console.log(`[useCreatePost] Waiting for DB sync...`);
           await new Promise(resolve => setTimeout(resolve, 500));
 
-          console.log(`[useCreatePost] Calling publish API...`);
+          // console.log(`[useCreatePost] Calling publish API...`);
           await apiClient.patch(`/post/${createdPost.id}/publish`, {});
-          console.log(`[useCreatePost] Published successfully!`);
+          // console.log(`[useCreatePost] Published successfully!`);
         }
 
         return createdPost;
       } catch (error: any) {
         if (error.response?.data) {
-          console.error('❌ BACKEND ERROR:', JSON.stringify(error.response.data, null, 2));
+          logger.error('❌ BACKEND ERROR:', error.response.data);
         }
         throw error;
       }

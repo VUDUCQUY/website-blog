@@ -11,6 +11,7 @@ import prisma from '@/lib/prisma';
 import { asyncHandler } from '@/common/middleware/async-handler.middleware';
 import { SignInDto, SignUpDto } from '@/modules/auth/auth.dto';
 import { Env } from '@/config/env.config';
+import { authRateLimiter } from '@/common/middleware/auth-rate-limit.middleware';
 
 const authRouter = Router();
 const authRepository = new PrismaAuthRepository(prisma);
@@ -20,6 +21,7 @@ const authController = new AuthController(authService);
 // ─── Local Auth ──────────────────────────────────────────────
 authRouter.post(
   '/register',
+  authRateLimiter,
   validateDto(SignUpDto),
   asyncHandler(authController.register.bind(authController)),
 );

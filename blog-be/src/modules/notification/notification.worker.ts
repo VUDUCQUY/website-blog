@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import logger from "@/lib/logger";
 import { io } from "@/websocket/socket";
 import { NotificationType } from "@prisma/client";
 
@@ -31,7 +32,7 @@ export const notificationWorker = async (
         notification,
     )
   } catch (error) {
-    console.error('Notification worker error:', error);
+    logger.error('Notification worker error:', error);
   }
 
 }

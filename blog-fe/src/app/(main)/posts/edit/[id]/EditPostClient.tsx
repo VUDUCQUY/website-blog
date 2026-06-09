@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { usePost, useUpdatePost } from '@/features/posts/hooks/usePostActions';
 import { Button } from '@/components/ui';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PostForm = dynamic(() => import('@/features/posts/components/PostForm').then(mod => mod.PostForm), {
   ssr: false,
@@ -24,7 +25,7 @@ export function EditPostClient({ id }: { id: string }) {
         router.push('/posts/manage');
       },
       onError: (err) => {
-        alert('Failed to update post: ' + err.message);
+        toast.error('Failed to update post: ' + err.message);
       }
     });
   };

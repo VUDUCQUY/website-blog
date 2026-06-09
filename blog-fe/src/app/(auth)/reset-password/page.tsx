@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Button, Input, Card, CardContent, ThemeToggle } from '@/components/ui';
 import { useResetPassword } from '@/features/auth/hooks';
 import { Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ function ResetPasswordForm() {
     if (!token) return;
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 

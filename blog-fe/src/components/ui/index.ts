@@ -5,3 +5,4 @@ export * from './Modal';
 export * from './SearchInput';
 export * from './ThemeToggle';
 export * from './Checkbox';
+export * from './ConfirmModal';

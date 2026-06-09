@@ -3,8 +3,9 @@
 import React, { useState, Suspense } from 'react';
 import { useMyPosts } from '@/features/posts/hooks/usePosts';
 import { useDeletePost } from '@/features/posts/hooks/usePostActions';
+import { logger } from '@/lib/logger';
 import { PostManagementCard } from '@/features/posts/components/PostManagementCard';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, ConfirmModal } from '@/components/ui';
 import { Plus, LayoutGrid, List, Filter, Search } from 'lucide-react';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
@@ -14,14 +15,14 @@ function ManagePostsContent() {
   const { data: allPosts, isLoading, error } = useMyPosts();
   const { mutate: deletePost } = useDeletePost();
 
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this story? This action cannot be undone.')) {
-      deletePost(id);
-    }
+    setConfirmDeleteId(id);
   };
 
   if (error) {
-    console.error('[ManagePosts] Error fetching posts:', error);
+    logger.error('[ManagePosts] Error fetching posts:', error);
   }
 
   const filteredPosts = allPosts?.filter(p => {
@@ -148,6 +149,17 @@ function ManagePostsContent() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => {
+          if (confirmDeleteId) deletePost(confirmDeleteId);
+        }}
+        title="Delete Story"
+        message="Are you sure you want to delete this story? This action cannot be undone."
+        confirmLabel="Delete Story"
+        variant="destructive"
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import { useMyPosts } from '@/features/posts/hooks/usePosts';
 import { useDeletePost } from '@/features/posts/hooks/usePostActions';
+import { logger } from '@/lib/logger';
 import { PostManagementCard } from '@/features/posts/components/PostManagementCard';
 import { Button, Card, CardContent } from '@/components/ui';
 import { Plus, LayoutGrid, List, Filter, Search } from 'lucide-react';
@@ -21,7 +22,7 @@ function ManagePostsContent() {
   };
 
   if (error) {
-    console.error('[ManagePosts] Error fetching posts:', error);
+    logger.error('[ManagePosts] Error fetching posts:', error);
   }
 
   const filteredPosts = allPosts?.filter(p => {

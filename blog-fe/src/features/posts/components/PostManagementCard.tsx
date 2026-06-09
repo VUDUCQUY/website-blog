@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Post } from '../types';
-import { Card, CardContent } from '@/components/ui';
+import { Card, CardContent, ConfirmModal } from '@/components/ui';
+import { toast } from 'sonner';
 import { Edit, Trash2, Eye, Calendar, Clock, FileText, Send, Undo2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,16 +18,43 @@ interface PostManagementCardProps {
 export const PostManagementCard: React.FC<PostManagementCardProps> = ({ post, onDelete }) => {
   const { mutate: publishPost, isPending: isPublishing } = usePublishPost();
   const { mutate: saveDraft, isPending: isSavingDraft } = useSaveDraft();
+  const [confirmConfig, setConfirmConfig] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    onConfirm: () => void;
+    variant: 'primary' | 'destructive';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirm',
+    onConfirm: () => {},
+    variant: 'primary'
+  });
+
+  const showConfirm = (config: Omit<typeof confirmConfig, 'isOpen'>) => {
+    setConfirmConfig({ ...config, isOpen: true });
+  };
 
   const handleToggleStatus = () => {
     if (post.isDraft) {
-      if (confirm('Are you sure you want to publish this story? It will be visible to everyone.')) {
-        publishPost(post.id);
-      }
+      showConfirm({
+        title: 'Publish Story',
+        message: 'Are you sure you want to publish this story? It will be visible to everyone.',
+        confirmLabel: 'Publish Now',
+        variant: 'primary',
+        onConfirm: () => publishPost(post.id)
+      });
     } else {
-      if (confirm('Move this story back to drafts? It will be hidden from the public feed.')) {
-        saveDraft(post.id);
-      }
+      showConfirm({
+        title: 'Move to Draft',
+        message: 'Move this story back to drafts? It will be hidden from the public feed.',
+        confirmLabel: 'Move to Draft',
+        variant: 'destructive',
+        onConfirm: () => saveDraft(post.id)
+      });
     }
   };
 
@@ -126,6 +154,16 @@ export const PostManagementCard: React.FC<PostManagementCardProps> = ({ post, on
           </div>
         </div>
       </CardContent>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmLabel={confirmConfig.confirmLabel}
+        variant={confirmConfig.variant}
+      />
     </Card>
   );
 };

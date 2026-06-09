@@ -112,7 +112,7 @@ interface ReportPayload {
 export function useReportPost() {
   return useMutation({
     mutationFn: async ({ postId, reason }: ReportPayload) => {
-      console.log('📤 Sending Report:', { postId, reason });
+      // console.log('📤 Sending Report:', { postId, reason });
       const { data } = await apiClient.post('/report/create', { postId, reason });
       return data;
     },

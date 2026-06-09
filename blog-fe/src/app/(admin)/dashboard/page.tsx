@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, Button, Modal } from '@/components/ui';
+import { Card, CardContent, CardHeader, Button, Modal, ConfirmModal } from '@/components/ui';
 import { 
   Users, 
   UserPlus, 
@@ -30,6 +30,7 @@ import { useReportsByStatus, useUpdateReportStatus, useDeleteReportedPost } from
 import { User } from '@/features/auth/types';
 import { ReportStatus } from '@/features/posts/types';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function AdminDashboard() {
   const { data: users, isLoading } = useAllUsers();
@@ -45,6 +46,27 @@ export default function AdminDashboard() {
   const [editRole, setEditRole] = useState<'ADMIN' | 'USER'>('USER');
   const [showPassword, setShowPassword] = useState(false);
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser(editingUser?.id || '');
+  
+  // Confirmation state
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel: string;
+    onConfirm: () => void;
+    variant: 'primary' | 'destructive';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmLabel: 'Confirm',
+    onConfirm: () => {},
+    variant: 'primary'
+  });
+
+  const showConfirm = (config: Omit<typeof confirmConfig, 'isOpen'>) => {
+    setConfirmConfig({ ...config, isOpen: true });
+  };
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +76,7 @@ export default function AdminDashboard() {
         setNewData({ name: '', email: '', password: '', role: 'USER' });
       },
       onError: (err: any) => {
-        alert('Failed to create user: ' + (err.response?.data?.message || err.message));
+        toast.error('Failed to create user: ' + (err.response?.data?.message || err.message));
       }
     });
   };
@@ -71,19 +93,25 @@ export default function AdminDashboard() {
         setEditingUser(null);
       },
       onError: (err: any) => {
-        alert('Failed to update user: ' + (err.response?.data?.message || err.message));
+        toast.error('Failed to update user: ' + (err.response?.data?.message || err.message));
       }
     });
   };
 
   const handleToggleStatus = (user: User) => {
-    if (confirm(`Are you sure you want to ${user.isActive ? 'disable' : 'enable'} ${user.name}?`)) {
-      toggleStatus(user.id, {
-        onError: (err: any) => {
-          alert('Failed to update status: ' + (err.response?.data?.message || err.message));
-        }
-      });
-    }
+    showConfirm({
+      title: 'Update User Access',
+      message: `Are you sure you want to ${user.isActive ? 'disable' : 'enable'} ${user.name}?`,
+      confirmLabel: user.isActive ? 'Disable' : 'Enable',
+      variant: user.isActive ? 'destructive' : 'primary',
+      onConfirm: () => {
+        toggleStatus(user.id, {
+          onError: (err: any) => {
+            toast.error('Failed to update status: ' + (err.response?.data?.message || err.message));
+          }
+        });
+      }
+    });
   };
 
   // State for tabs
@@ -100,9 +128,15 @@ export default function AdminDashboard() {
   };
 
   const handleDeletePost = (postId: string) => {
-    if (confirm('CAUTION: This will permanently hide/delete this post from the feed. Proceed?')) {
-      deletePost(postId);
-    }
+    showConfirm({
+      title: 'Delete Reported Post',
+      message: 'CAUTION: This will permanently hide/delete this post from the feed. Proceed?',
+      confirmLabel: 'Delete Permanently',
+      variant: 'destructive',
+      onConfirm: () => {
+        deletePost(postId);
+      }
+    });
   };
 
   return (
@@ -517,6 +551,16 @@ export default function AdminDashboard() {
           </div>
         </form>
       </Modal>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmLabel={confirmConfig.confirmLabel}
+        variant={confirmConfig.variant}
+      />
     </div>
   );
 }

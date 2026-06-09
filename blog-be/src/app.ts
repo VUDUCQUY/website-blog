@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import logger from './lib/logger';
 import express from 'express';
 import cors from 'cors';
 import routes from './routes';
@@ -20,7 +21,7 @@ app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
+  logger.info(`[${req.method}] ${req.url}`);
   next();
 });
 
@@ -36,7 +37,7 @@ app.use(errorHandler);
 import { initSocket } from './websocket/socket';
 
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
 
 initSocket(server);

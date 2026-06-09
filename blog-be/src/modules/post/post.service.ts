@@ -8,7 +8,9 @@ import {
   uploadToCloudinary,
 } from '@/common/utils/cloudinary';
 import { UpdatePostDto } from './post.dto';
-import { BadRequestException } from '@/common/utils/app-error';
+import { AppError, BadRequestException } from '@/common/utils/app-error';
+import { HTTPSTATUS } from '@/config/http.config';
+import logger from '@/lib/logger';
 import { Env } from '@/config/env.config';
 
 export class PostService {
@@ -134,7 +136,8 @@ export class PostService {
         throw new BadRequestException('Post not found');
       }
       if (post.userId !== userId) {
-        throw new BadRequestException('You are not authorized to update this post');
+        logger.warn(`Unauthorized update attempt: user=${userId} tried to update post=${postId} owned by user=${post.userId}`);
+        throw new AppError('You are not authorized to update this post', HTTPSTATUS.FORBIDDEN);
       }
       if (data.content && data.content.length < 10) {
         throw new BadRequestException('Content is too short');
@@ -240,7 +243,8 @@ export class PostService {
         throw new BadRequestException('Post not found');
       }
       if (post.userId !== userId) {
-        throw new BadRequestException('You are not authorized to delete this post');
+        logger.warn(`Unauthorized delete attempt: user=${userId} tried to delete post=${postId} owned by user=${post.userId}`);
+        throw new AppError('You are not authorized to delete this post', HTTPSTATUS.FORBIDDEN);
       }
       return await this.postRepository.deletePost(userId, postId);
     } catch (error) {
@@ -249,6 +253,14 @@ export class PostService {
   }
 
   async updateDraftStatus(userId: string, postId: string, isDraft: boolean): Promise<Post> {
+    const existing = await this.postRepository.findPostById(postId);
+    if (!existing) {
+      throw new BadRequestException('Post not found');
+    }
+    if (existing.userId !== userId) {
+      logger.warn(`Unauthorized draft status change: user=${userId} tried to modify post=${postId} owned by user=${existing.userId}`);
+      throw new AppError('You are not authorized to modify this post', HTTPSTATUS.FORBIDDEN);
+    }
     const post = await this.postRepository.updateDraftStatus(userId, postId, isDraft);
     if (!post) {
       throw new BadRequestException('Post not found or already in this state');
@@ -294,10 +306,26 @@ export class PostService {
   }
 
   async attachTagsToPost(userId: string, postId: string, tagIds: string[]) {
+    const post = await this.postRepository.findPostById(postId);
+    if (!post) {
+      throw new BadRequestException('Post not found');
+    }
+    if (post.userId !== userId) {
+      logger.warn(`Unauthorized tag attach: user=${userId} tried to tag post=${postId} owned by user=${post.userId}`);
+      throw new AppError('You are not authorized to modify this post', HTTPSTATUS.FORBIDDEN);
+    }
     return await this.postRepository.attachTagsToPost(userId, postId, tagIds);
   }
 
-  async detachTagFromPost(postId: string, tagId: string) {
+  async detachTagFromPost(userId: string, postId: string, tagId: string) {
+    const post = await this.postRepository.findPostById(postId);
+    if (!post) {
+      throw new BadRequestException('Post not found');
+    }
+    if (post.userId !== userId) {
+      logger.warn(`Unauthorized tag detach: user=${userId} tried to detag post=${postId} owned by user=${post.userId}`);
+      throw new AppError('You are not authorized to modify this post', HTTPSTATUS.FORBIDDEN);
+    }
     return await this.postRepository.detachTagFromPost(postId, tagId);
   }
 

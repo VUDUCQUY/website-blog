@@ -3,19 +3,20 @@ import apiClient from '@/lib/api-client';
 import { Notification } from '../types';
 import { useNotificationStore } from '../store/notificationStore';
 import { useEffect } from 'react';
+import { useAuthStore } from '@/features/auth/store/authStore';
 
 export function useNotifications() {
   const { setNotifications } = useNotificationStore();
+  const token = useAuthStore((s) => s.token);
 
   const query = useQuery<Notification[], Error>({
     queryKey: ['notifications'],
+    enabled: !!token,
     queryFn: async () => {
       try {
         const { data } = await apiClient.get<{ data: Notification[] }>('/notification/user');
         return data.data || [];
       } catch (err: any) {
-        console.warn('⚠️ Backend notifications endpoint not available. Using local store notifications.', err.message);
-        // Do not throw; return whatever is currently in our in-memory Zustand store
         return useNotificationStore.getState().notifications;
       }
     },
@@ -40,7 +41,7 @@ export function useMarkAsRead() {
       try {
         await apiClient.patch(`/notification/${id}/read`);
       } catch (err: any) {
-        console.warn(`⚠️ Backend markAsRead endpoint not available. Updating local state only.`, err.message);
+        // Silently catch and update local state since backend doesn't implement read endpoints
       }
     },
     onSuccess: (_, id) => {
@@ -59,7 +60,7 @@ export function useMarkAllAsRead() {
       try {
         await apiClient.patch('/notification/read-all');
       } catch (err: any) {
-        console.warn('⚠️ Backend markAllAsRead endpoint not available. Updating local state only.', err.message);
+        // Silently catch and update local state since backend doesn't implement read endpoints
       }
     },
     onSuccess: () => {

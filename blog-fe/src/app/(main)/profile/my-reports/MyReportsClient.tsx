@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useMyReports, useDeleteReport } from '@/features/posts/hooks/useReports';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, ConfirmModal } from '@/components/ui';
 import { Flag, Clock, CheckCircle2, XCircle, AlertCircle, ExternalLink, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { ReportStatus } from '@/features/posts/types';
@@ -30,10 +30,10 @@ function MyReportsContent() {
   const { data: reports, isLoading } = useMyReports();
   const { mutate: retractReport, isPending: isRetracting } = useDeleteReport();
 
+  const [confirmRetractId, setConfirmRetractId] = React.useState<string | null>(null);
+
   const handleRetract = (id: string) => {
-    if (confirm('Are you sure you want to retract this report?')) {
-      retractReport(id);
-    }
+    setConfirmRetractId(id);
   };
 
   return (
@@ -116,6 +116,18 @@ function MyReportsContent() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmRetractId}
+        onClose={() => setConfirmRetractId(null)}
+        onConfirm={() => {
+          if (confirmRetractId) retractReport(confirmRetractId);
+        }}
+        title="Retract Report"
+        message="Are you sure you want to retract this report? It will no longer be visible to moderators."
+        confirmLabel="Retract Now"
+        variant="destructive"
+      />
     </div>
   );
 }
